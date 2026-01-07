@@ -1,117 +1,154 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import React, { useState } from 'react';
 import {
   SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
-  useColorScheme,
   View,
+  TouchableOpacity,
+  StatusBar,
 } from 'react-native';
+import CircularProgress from './src/components/CircularProgress';
+import RechargeModal from './src/components/RechargeModal';
+import { useDataUsage } from './src/hooks/useDataUsage';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const App = (): React.JSX.Element => {
+  const {
+    userData,
+    usedData,
+    remainingData,
+    percentageRemaining,
+    progressColor,
+    handleRecharge,
+  } = useDataUsage();
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+  const onRechargePress = () => {
+    setIsModalVisible(true);
+  };
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const onModalClose = () => {
+    handleRecharge(); // Reset data when modal is closed
+    setIsModalVisible(false);
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
+
+      <View style={styles.header}>
+        <Text style={styles.greeting}>Hello, {userData.userName}</Text>
+        <Text style={styles.planName}>{userData.planName}</Text>
+      </View>
+
+      <View style={styles.progressContainer}>
+        <CircularProgress
+          size={250}
+          strokeWidth={20}
+          percentage={percentageRemaining}
+          color={progressColor}
+          backgroundColor="#e0e0e0"
+        >
+          <View style={styles.innerContent}>
+            <Text style={[styles.percentageText, { color: progressColor }]}>
+              {Math.round(percentageRemaining)}%
+            </Text>
+            <Text style={styles.remainingLabel}>Remaining</Text>
+            <Text style={styles.dataText}>
+              {usedData.toFixed(1)} {userData.currency} / {userData.totalDataMB} {userData.currency}
+            </Text>
+          </View>
+        </CircularProgress>
+      </View>
+
+      <View style={styles.footer}>
+        <TouchableOpacity style={[styles.button, { backgroundColor: progressColor }]} onPress={onRechargePress}>
+          <Text style={styles.buttonText}>RECHARGE DATA</Text>
+        </TouchableOpacity>
+        <Text style={styles.footerText}>
+          Data consumes automatically every second. Tap Recharge to reset.
+        </Text>
+      </View>
+
+      <RechargeModal visible={isModalVisible} onClose={onModalClose} />
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 50,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  header: {
+    alignItems: 'center',
+    marginTop: 20,
   },
-  sectionDescription: {
-    marginTop: 8,
+  greeting: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+  },
+  planName: {
     fontSize: 18,
-    fontWeight: '400',
+    color: '#666',
   },
-  highlight: {
-    fontWeight: '700',
+  progressContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'white',
+    borderRadius: 150,
+    padding: 30,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+  },
+  innerContent: {
+    alignItems: 'center',
+  },
+  percentageText: {
+    fontSize: 48,
+    fontWeight: 'bold',
+  },
+  remainingLabel: {
+    fontSize: 16,
+    color: '#888',
+    marginTop: 5,
+  },
+  dataText: {
+    fontSize: 14,
+    color: '#888',
+    marginTop: 5,
+  },
+  footer: {
+    width: '100%',
+    paddingHorizontal: 30,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  button: {
+    width: '100%',
+    paddingVertical: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 15,
+    elevation: 3,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  footerText: {
+    textAlign: 'center',
+    color: '#999',
+    fontSize: 12,
   },
 });
 
