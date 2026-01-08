@@ -28,6 +28,7 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
       <Svg width={size} height={size}>
         <Circle
           stroke={backgroundColor}
+          fill="none"
           cx={size / 2}
           cy={size / 2}
           r={radius}
@@ -35,6 +36,7 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
         />
         <Circle
           stroke={color}
+          fill="none"
           cx={size / 2}
           cy={size / 2}
           r={radius}

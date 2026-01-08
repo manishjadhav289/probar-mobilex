@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
     Modal,
     View,
     Text,
     TouchableOpacity,
     StyleSheet,
+    Animated,
+    Easing,
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
@@ -13,18 +15,61 @@ interface RechargeModalProps {
     onClose: () => void;
 }
 
-const CheckIcon = () => (
-    <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-        <Circle cx={12} cy={12} r={11} stroke="#2ecc71" strokeWidth={2} />
-        <Path
-            d="M7 12l3 3 7-7"
-            stroke="#2ecc71"
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        />
-    </Svg>
-);
+const AnimatedCheckIcon: React.FC<{ animate: boolean }> = ({ animate }) => {
+    const scaleAnim = useRef(new Animated.Value(0)).current;
+    const checkAnim = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        if (animate) {
+            // Reset animations
+            scaleAnim.setValue(0);
+            checkAnim.setValue(0);
+
+            // Run animations in sequence
+            Animated.sequence([
+                // Circle pops in with bounce
+                Animated.spring(scaleAnim, {
+                    toValue: 1,
+                    friction: 4,
+                    tension: 100,
+                    useNativeDriver: true,
+                }),
+                // Checkmark draws in
+                Animated.timing(checkAnim, {
+                    toValue: 1,
+                    duration: 300,
+                    easing: Easing.out(Easing.ease),
+                    useNativeDriver: true,
+                }),
+            ]).start();
+        }
+    }, [animate, scaleAnim, checkAnim]);
+
+    return (
+        <Animated.View
+            style={[
+                styles.checkIconContainer,
+                {
+                    transform: [{ scale: scaleAnim }],
+                },
+            ]}
+        >
+            <View style={styles.checkCircle}>
+                <Animated.View style={{ opacity: checkAnim, transform: [{ scale: checkAnim }] }}>
+                    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+                        <Path
+                            d="M5 12l5 5 9-9"
+                            stroke="#1a1a1a"
+                            strokeWidth={3}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        />
+                    </Svg>
+                </Animated.View>
+            </View>
+        </Animated.View>
+    );
+};
 
 const RechargeModal: React.FC<RechargeModalProps> = ({ visible, onClose }) => {
     return (
@@ -39,7 +84,7 @@ const RechargeModal: React.FC<RechargeModalProps> = ({ visible, onClose }) => {
                     <Text style={styles.title}>Payment successful!</Text>
 
                     <View style={styles.messageRow}>
-                        <CheckIcon />
+                        <AnimatedCheckIcon animate={visible} />
                         <Text style={styles.messageText}>
                             Thank you, your payment has been successfully processed.
                         </Text>
@@ -74,8 +119,23 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: 'bold',
         color: '#000',
-        marginBottom: 20,
+        marginBottom: 16,
         textAlign: 'center',
+    },
+    checkIconContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 12,
+    },
+    checkCircle: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        borderWidth: 2,
+        borderColor: '#1a1a1a',
+        backgroundColor: 'transparent',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     messageRow: {
         flexDirection: 'row',
@@ -85,7 +145,6 @@ const styles = StyleSheet.create({
     messageText: {
         fontSize: 14,
         color: '#333',
-        marginLeft: 12,
         flex: 1,
         lineHeight: 20,
     },

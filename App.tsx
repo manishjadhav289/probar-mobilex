@@ -50,13 +50,22 @@ const App = (): React.JSX.Element => {
           backgroundColor="#e0e0e0"
         >
           <View style={styles.innerContent}>
-            <Text style={[styles.percentageText, { color: progressColor }]}>
-              {Math.round(percentageRemaining)}%
-            </Text>
-            <Text style={styles.remainingLabel}>Remaining</Text>
-            <Text style={styles.dataText}>
-              {usedData.toFixed(1)} {userData.currency} / {userData.totalDataMB} {userData.currency}
-            </Text>
+            {percentageRemaining === 0 ? (
+              <>
+                <Text style={styles.urgentText}>No{'\n'}Data Available</Text>
+                <Text style={styles.suspendedText}>RECHARGE{'\n'}NOW</Text>
+              </>
+            ) : (
+              <>
+                <Text style={[styles.percentageText, { color: progressColor }]}>
+                  {Math.round(percentageRemaining)}%
+                </Text>
+                <Text style={styles.remainingLabel}>Remaining</Text>
+                <Text style={styles.dataText}>
+                  {usedData.toFixed(1)} {userData.currency} / {userData.totalDataMB} {userData.currency}
+                </Text>
+              </>
+            )}
           </View>
         </CircularProgress>
       </View>
@@ -125,6 +134,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#888',
     marginTop: 5,
+  },
+  urgentText: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#e74c3c',
+    textAlign: 'center',
+    lineHeight: 28,
+  },
+  suspendedText: {
+    fontSize: 12,
+    color: '#888',
+    textAlign: 'center',
+    marginTop: 10,
+    lineHeight: 16,
   },
   footer: {
     width: '100%',
