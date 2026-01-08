@@ -13,11 +13,13 @@ import Svg, { Circle, Path } from 'react-native-svg';
 interface RechargeModalProps {
     visible: boolean;
     onClose: () => void;
+    isDark?: boolean;
 }
 
-const AnimatedCheckIcon: React.FC<{ animate: boolean }> = ({ animate }) => {
+const AnimatedCheckIcon: React.FC<{ animate: boolean; isDark?: boolean }> = ({ animate, isDark }) => {
     const scaleAnim = useRef(new Animated.Value(0)).current;
     const checkAnim = useRef(new Animated.Value(0)).current;
+    const strokeColor = isDark ? '#ffffff' : '#1a1a1a';
 
     useEffect(() => {
         if (animate) {
@@ -54,12 +56,12 @@ const AnimatedCheckIcon: React.FC<{ animate: boolean }> = ({ animate }) => {
                 },
             ]}
         >
-            <View style={styles.checkCircle}>
+            <View style={[styles.checkCircle, { borderColor: strokeColor }]}>
                 <Animated.View style={{ opacity: checkAnim, transform: [{ scale: checkAnim }] }}>
                     <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
                         <Path
                             d="M5 12l5 5 9-9"
-                            stroke="#1a1a1a"
+                            stroke={strokeColor}
                             strokeWidth={3}
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -71,7 +73,13 @@ const AnimatedCheckIcon: React.FC<{ animate: boolean }> = ({ animate }) => {
     );
 };
 
-const RechargeModal: React.FC<RechargeModalProps> = ({ visible, onClose }) => {
+const RechargeModal: React.FC<RechargeModalProps> = ({ visible, onClose, isDark = false }) => {
+    const modalBg = isDark ? '#1a472a' : '#2ecc71';
+    const titleColor = isDark ? '#ffffff' : '#000000';
+    const textColor = isDark ? '#e0e0e0' : '#333333';
+    const buttonBg = isDark ? '#2a2a2a' : '#f5f5f5';
+    const buttonTextColor = isDark ? '#ffffff' : '#333333';
+
     return (
         <Modal
             visible={visible}
@@ -80,18 +88,18 @@ const RechargeModal: React.FC<RechargeModalProps> = ({ visible, onClose }) => {
             onRequestClose={onClose}
         >
             <View style={styles.overlay}>
-                <View style={styles.modalContainer}>
-                    <Text style={styles.title}>Payment successful!</Text>
+                <View style={[styles.modalContainer, { backgroundColor: modalBg }]}>
+                    <Text style={[styles.title, { color: titleColor }]}>Payment successful!</Text>
 
                     <View style={styles.messageRow}>
-                        <AnimatedCheckIcon animate={visible} />
-                        <Text style={styles.messageText}>
+                        <AnimatedCheckIcon animate={visible} isDark={isDark} />
+                        <Text style={[styles.messageText, { color: textColor }]}>
                             Thank you, your payment has been successfully processed.
                         </Text>
                     </View>
 
-                    <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                        <Text style={styles.closeButtonText}>Close</Text>
+                    <TouchableOpacity style={[styles.closeButton, { backgroundColor: buttonBg }]} onPress={onClose}>
+                        <Text style={[styles.closeButtonText, { color: buttonTextColor }]}>Close</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -107,7 +115,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalContainer: {
-        backgroundColor: '#2ecc71',
         borderRadius: 12,
         padding: 24,
         marginHorizontal: 40,
@@ -118,7 +125,6 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 22,
         fontWeight: 'bold',
-        color: '#000',
         marginBottom: 16,
         textAlign: 'center',
     },
@@ -132,7 +138,6 @@ const styles = StyleSheet.create({
         height: 40,
         borderRadius: 20,
         borderWidth: 2,
-        borderColor: '#1a1a1a',
         backgroundColor: 'transparent',
         alignItems: 'center',
         justifyContent: 'center',
@@ -144,12 +149,10 @@ const styles = StyleSheet.create({
     },
     messageText: {
         fontSize: 14,
-        color: '#333',
         flex: 1,
         lineHeight: 20,
     },
     closeButton: {
-        backgroundColor: '#f5f5f5',
         paddingVertical: 12,
         paddingHorizontal: 40,
         borderRadius: 8,
@@ -158,7 +161,6 @@ const styles = StyleSheet.create({
     },
     closeButtonText: {
         fontSize: 16,
-        color: '#333',
         fontWeight: '500',
     },
 });
