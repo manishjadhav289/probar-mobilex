@@ -1,6 +1,12 @@
 import notifee, { AndroidImportance, AuthorizationStatus } from '@notifee/react-native';
 import { Platform } from 'react-native';
 
+export interface NotificationData {
+    userName: string;
+    planName: string;
+    dataMB: number;
+}
+
 export class NotificationService {
     private static channelId: string | null = null;
 
@@ -44,9 +50,9 @@ export class NotificationService {
         }
     }
 
-    static async showRechargeNotification(): Promise<void> {
+    static async showRechargeNotification(data: NotificationData): Promise<void> {
         try {
-            console.log('Attempting to show notification...');
+            console.log('Attempting to show notification with data:', data);
 
             // Request permission first (required for Android 13+)
             const hasPermission = await this.requestPermission();
@@ -59,8 +65,8 @@ export class NotificationService {
             console.log('Using channel:', channelId);
 
             const notificationId = await notifee.displayNotification({
-                title: '🎉 Recharge Successful!',
-                body: 'Your data plan has been recharged successfully. Enjoy your data!',
+                title: `🎉 Recharge Successful, ${data.userName}!`,
+                body: `Your ${data.planName} has been recharged with ${data.dataMB} MB. Enjoy your data!`,
                 android: {
                     channelId,
                     importance: AndroidImportance.HIGH,

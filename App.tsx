@@ -31,8 +31,12 @@ const App = (): React.JSX.Element => {
   const onModalClose = async () => {
     handleRecharge(); // Reset data when modal is closed
     setIsModalVisible(false);
-    // Show device notification
-    await NotificationService.showRechargeNotification();
+    // Show device notification with dynamic user data
+    await NotificationService.showRechargeNotification({
+      userName: userData.userName,
+      planName: userData.planName,
+      dataMB: userData.totalDataMB,
+    });
   };
 
   return (
