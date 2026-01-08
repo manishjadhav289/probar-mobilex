@@ -10,6 +10,7 @@ import {
 import CircularProgress from './src/components/CircularProgress';
 import RechargeModal from './src/components/RechargeModal';
 import { useDataUsage } from './src/hooks/useDataUsage';
+import { NotificationService } from './src/services/NotificationService';
 
 const App = (): React.JSX.Element => {
   const {
@@ -27,9 +28,11 @@ const App = (): React.JSX.Element => {
     setIsModalVisible(true);
   };
 
-  const onModalClose = () => {
+  const onModalClose = async () => {
     handleRecharge(); // Reset data when modal is closed
     setIsModalVisible(false);
+    // Show device notification
+    await NotificationService.showRechargeNotification();
   };
 
   return (
@@ -71,7 +74,7 @@ const App = (): React.JSX.Element => {
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={[styles.button, { backgroundColor: progressColor }]} onPress={onRechargePress}>
+        <TouchableOpacity style={[styles.button, { backgroundColor: '#2ecc71' }]} onPress={onRechargePress}>
           <Text style={styles.buttonText}>RECHARGE DATA</Text>
         </TouchableOpacity>
         <Text style={styles.footerText}>
